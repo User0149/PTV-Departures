@@ -1,6 +1,6 @@
+import { HmacSHA1 } from "crypto-js";
 function hmacSHA1(message, key) {
-    const CryptoJS = require('crypto-js');
-    return CryptoJS.HmacSHA1(message, key).toString();
+    return HmacSHA1(message, key).toString();
 }
 
 export default async function APIQuery(query_string) {

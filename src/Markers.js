@@ -16,4 +16,4 @@ function iconRoute(type, sz) {
     });
 }
 
-export {iconRoute, iconRed}
+export {iconRoute, iconRed};
