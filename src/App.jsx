@@ -1,5 +1,5 @@
 import './style.css';
-import {useEffect, useState, useCallback, useRef} from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 
 import NearestStopsElem from './NearestStopsElem.jsx';
 import NextDeparturesElem from './NextDeparturesElem.jsx';
