@@ -1,12 +1,14 @@
-import './style.css';
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef } from "react";
 
-import NearestStopsElem from './NearestStopsElem.jsx';
-import NextDeparturesElem from './NextDeparturesElem.jsx';
-import MapElem from './MapElem.jsx';
-import TopBar from './TopBar.jsx';
-import APIQuery from './api.js';
-import Disruption from './Disruption.jsx';
+import NearestStopsElem from "./components/NearestStopsElem.jsx";
+import NextDeparturesElem from "./components/NextDeparturesElem.jsx";
+import MapElem from "./components/MapElem.jsx";
+import TopBar from "./components/TopBar.jsx";
+import APIQuery from "./lib/api.js";
+import Disruption from "./components/Disruption.jsx";
+
+import "./App.css";
+import "./styles/utilities.css";
 
 async function NearestStops(lat, long) {
     const ret = await APIQuery(`/v3/stops/location/${lat},${long}?max_distance=1000&max_results=1000`);

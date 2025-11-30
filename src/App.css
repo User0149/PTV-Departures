@@ -6,45 +6,6 @@ html, body, #root {
     margin: 0;
 }
 
-.overflow-hidden {
-    overflow: hidden;
-}
-.border {
-    border: 1px solid grey;
-}
-.border-bottom {
-    border-bottom: 1px solid grey;
-}
-.border-right {
-    border-right: 1px solid grey;
-}
-
-.flex {
-    display: flex;
-}
-
-.height100vh {
-    height: 100vh;
-}
-.height100 {
-    height: 100%;
-}
-.height25 {
-    height: 25%;
-}
-.width100 {
-    width: 100%;
-}
-.width75 {
-    width: 75%;
-}
-.width25 {
-    width: 25%;
-}
-.width50 {
-    width: 50%;
-}
-
 .stop_box:hover {
     background-color: #d5d5d5;
     cursor: pointer;
@@ -62,61 +23,6 @@ html, body, #root {
     background-color: #d5d5d5;
 }
 
-.clickable:hover {
-    cursor: pointer;
-}
-.overflow {
-    overflow: auto;
-}
-.overflow::-webkit-scrollbar {
-    display: none;
-}
-
-.text-align-center {
-    text-align: center;
-}
-.center {
-    margin: auto;
-}
-
-.flex-center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.flex-space {
-    display: flex;
-    justify-content: space-between;
-}
-.font-x-large {
-    font-size: x-large;
-}
-.font-large {
-    font-size: large;
-}
-
-.float-right {
-    float: right;
-}
-.red {
-    background-color: red;
-}
-
-.background-grey {
-    background-color: #45484a;
-    color: white;
-}
-.padding-15px {
-    padding: 15px;
-}
-.padding-10px {
-    padding: 10px;
-}
-
-.rounded_h {
-    border-radius: 50vh;
-}
-
 .small_route_button {
     display: inline-block;
     border-radius: 50vh;
@@ -127,18 +33,6 @@ html, body, #root {
     padding-right: 5px;
     padding-top: 2px;
     padding-bottom: 2px;
-}
-.margin-top-10px {
-    margin-top: 10px;
-}
-.inline-block {
-    display: inline-block;
-}
-.margin-right-0 {
-    margin-right: 0px;
-}
-.font-grey {
-    color: grey;
 }
 .estimated_button {
     border: 1px solid black;
@@ -151,41 +45,14 @@ html, body, #root {
     padding-top: 5px;
     padding-bottom: 5px;
 }
-.float-right-10 {
-    margin-left: auto;
-    margin-right: 10px;
-}
 .top-bar {
     background-color: black;
     height: 30px;
-}
-.white-text {
-    color: white;
-}
-.position-absolute {
-    position: absolute;
-}
-.position-relative {
-    position: relative;
-}
-.bold {
-    font-weight: bold;
 }
 #settings_icon_box:hover {
     background-color: gray;
     cursor: pointer;
 }
-.black-background {
-    background-color: black;
-}
-.position-fixed-right {
-    position: fixed;
-    right: 0px;
-}
-.font-red {
-    color: red;
-}
-
 #settings_elem {
     visibility: hidden;
     opacity: 0;
@@ -199,25 +66,6 @@ html, body, #root {
     opacity: 1;
     visibility: visible;
 }
-.visibility-visible {
-    visibility: visible;
-}
-.visibility-hidden {
-    visibility: hidden;
-}
-.z-index-1k {
-    z-index: 1000;
-}
-.z-index-0 {
-    z-index: 0;
-}
-.opacity-0 {
-    opacity: 0;
-}
-.opacity-75 {
-    opacity: 0.75;
-}
-
 #refresh_icon_box:hover {
     background-color: gray;
     cursor: pointer;
@@ -255,7 +103,6 @@ html, body, #root {
 .modal_close_button:hover {
     color: gray;
 }
-
 .set_location_button:hover {
     cursor: pointer;
     opacity: 0.8;
