@@ -1,5 +1,5 @@
 import L from 'leaflet';
-import type { routeType } from "../types/types";
+import type { routeTypeType } from "../types/types";
 
 export const iconRed = new L.Icon({
     iconUrl: "markers/red-marker.png",
@@ -8,7 +8,7 @@ export const iconRed = new L.Icon({
     iconSize: [20,35]
 });
 
-export function iconRoute(type: routeType, sz: number) {
+export function iconRoute(type: routeTypeType, sz: number) {
     return new L.Icon({
         iconUrl: `markers/route_type_${type}.svg`,
         iconRetinaUrl: `markers/route_type_${type}.svg`,

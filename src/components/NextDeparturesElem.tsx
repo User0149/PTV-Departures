@@ -1,42 +1,42 @@
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useContext } from "react";
+import { DeparturesContext } from "../context/DeparturesContext";
+import type { departureType, runType } from "../types/types";
+import { DisruptionContext } from "../context/DisruptionContext";
 
-import APIQuery from "../lib/api";
-
-async function NextDepartures(selectedStop) {
-    if (selectedStop == null) return {};
-
-    let route_type = selectedStop.route_type.toString();
-    let stop_id = selectedStop.stop_id.toString();
-    const response = await APIQuery(`/v3/departures/route_type/${route_type}/stop/${stop_id}?max_results=10&expand=0`);
-    if (!response) return {};
-    return response;
+interface DepartureItemProps {
+    departure: departureType;
+    run: runType;
 }
 
-function DepartureItem({selectedStop, departure, run, selectedRun, setSelectedRun, setDisruptionIDs, setShowDisruptions}) {
-    const scheduled_departure_utc = new Date(departure.scheduled_departure_utc);
-    const estimated_departure_utc = (departure.estimated_departure_utc ? new Date(departure.estimated_departure_utc) : null);
+function DepartureItem({ departure, run }: DepartureItemProps) {
+    const { selectedStop, selectedRun, setSelectedRun } = useContext(DeparturesContext);
+    const { setDisruptionIDs, setShowDisruptions } = useContext(DisruptionContext);
+
+    const scheduled_departure_utc = new Date(departure.scheduled_departure_utc!);
+    const estimated_departure_utc = (departure.estimated_departure_utc !== undefined ? new Date(departure.estimated_departure_utc) : null);
 
     const route_id = departure.route_id;
     const platform_number = departure.platform_number;
-    let route_number, route_name = ["", ""];
+    let [route_number, route_name] = ["", ""];
 
     const route_type = selectedStop.route_type;
 
-    for (let route of selectedStop.routes) {
+    for (const route of selectedStop.routes!) {
         if (route.route_id === route_id) {
-            [route_number, route_name] = [route.route_number, route.route_name];
+            [route_number, route_name] = [route.route_number!, route.route_name!];
         }
     }
 
+    // I like 24-hour time
     const scheduled_string = scheduled_departure_utc.toLocaleTimeString("fr-FR").slice(0,5);
     const scheduled_string_extended = (scheduled_departure_utc.toDateString() === (new Date()).toDateString() ? "" : `${scheduled_departure_utc.toDateString().slice(0,3)} `) + scheduled_string;
 
     const estimated_string = (estimated_departure_utc ? (estimated_departure_utc.getTime() === scheduled_departure_utc.getTime() ? scheduled_string : estimated_departure_utc.toLocaleTimeString("fr-FR")) : scheduled_string);
 
     return (
-        <div className="width100 departure_box flex" style={((run.run_ref === selectedRun.run_ref && run.route_type === selectedRun.route_type && departure.scheduled_departure_utc === selectedRun.scheduled_departure_utc) ? {backgroundColor: "#d5d5d5"} : {})} onClick={() => {
-            let newSelectedRun = run;
-            newSelectedRun["scheduled_departure_utc"] = departure.scheduled_departure_utc;
+        <div className="width100 departure_box flex" style={((run.run_ref === selectedRun.run_ref && run.route_type === selectedRun.route_type) ? {backgroundColor: "#d5d5d5"} : {})} onClick={() => {
+            const newSelectedRun = run;
+            newSelectedRun.scheduled_departure_utc = departure.scheduled_departure_utc;
             setSelectedRun(newSelectedRun);
         }}>
             <div style={{width: "calc(100% - 100px)", marginLeft: "10px"}}>
@@ -55,13 +55,13 @@ function DepartureItem({selectedStop, departure, run, selectedRun, setSelectedRu
 
                 <div className="flex" style={{marginTop: "15px", marginBottom: "10px", alignItems: "center"}}>
                     <div className="flex" style={{minWidth: "90px", alignItems: "center"}}>
-                        <div className="small_route_button" style={{border: `1.5px solid ${["#008cce","#71be46","#ff8200","#7d4296","#ff8200"][route_type]}`, fontSize: "0.9em"}}>
+                        <div className="small_route_button" style={{border: `1.5px solid ${["#008cce","#71be46","#ff8200","#7d4296","#ff8200"][route_type!]}`, fontSize: "0.9em"}}>
                             {(route_number ? route_number : route_name)}
                         </div>
                     </div>
 
-                    {departure.disruption_ids.length >= 1 && <img alt="disruption" src="img/exclamation_mark.svg" height="23px" className="clickable" onClick={() => {
-                        setDisruptionIDs(departure.disruption_ids);
+                    {departure.disruption_ids!.length >= 1 && <img alt="disruption" src="img/exclamation_mark.svg" height="23px" className="clickable" onClick={() => {
+                        setDisruptionIDs(departure.disruption_ids!);
                         setShowDisruptions(true);
                     }}></img>}
                 </div>
@@ -84,27 +84,26 @@ function DepartureItem({selectedStop, departure, run, selectedRun, setSelectedRu
     );
 }
 
-function DeparturesListElem({selectedStop, departures, selectedRun, setSelectedRun, setDisruptionIDs, setShowDisruptions}) {
-    if (!selectedStop || !departures.departures || !departures.runs) {
+function DeparturesListElem() {
+    const { selectedStop, departuresList, departuresListFetched, runs } = useContext(DeparturesContext);
+    if (!departuresListFetched) {
         return (
             <></>
         );
     }
-    if (departures.departures.length === 0) {
+    if (departuresList.length === 0) {
         return (
             <div className="height100 text-align-center">
                 <p>There are no departures from this stop.</p>
             </div>
         );
     }
-
-    const runs = departures.runs;
     return (
         <div className="overflow" style={{height: "calc(100% - 54px)"}}>
             {
-                departures.departures.map(departure => {
+                departuresList.map(departure => {
                     return (
-                        <DepartureItem key={departure.run_ref.toString() +","+ selectedStop.stop_id.toString()+","+departure.scheduled_departure_utc} selectedStop={selectedStop} selectedRun={selectedRun} setSelectedRun={setSelectedRun} departure={departure} run={runs[departure.run_ref]} setDisruptionIDs={setDisruptionIDs} setShowDisruptions={setShowDisruptions}/>
+                        <DepartureItem key={String(departure.run_ref) +","+ String(selectedStop.stop_id)+","+departure.scheduled_departure_utc!}departure={departure} run={runs[departure.run_ref!]} />
                     );
                 })
             }
@@ -112,63 +111,19 @@ function DeparturesListElem({selectedStop, departures, selectedRun, setSelectedR
     );
 }
 
-export default function NextDeparturesElem({selectedStop, selectedRun, setSelectedRun, setDisruptionIDs, setDisruptions, setShowDisruptions}) {
-    const [departures, setDepartures] = useState({});
-
-    const selectedRunRef = useRef(selectedRun);
-
-    useEffect(() => {
-        selectedRunRef.current = selectedRun;
-    }, [selectedRun]);
-
-
-    const getDepartures = useCallback(async () => {
-        const response = await NextDepartures(selectedStop);
-        if (response) {
-            setDepartures(response);
-            setDisruptions(response.disruptions);
-        }
-        return response;
-    }, [setDisruptions, selectedStop]);
-
-    const getSelectedRun = useCallback(async (response) => {
-        if (response.departures && response.departures.length >= 1) {
-            const runs = response.runs;
-            if (!selectedRunRef.current || !runs[selectedRunRef.current.run_ref]) {
-                const newSelectedRun = runs[response.departures[0].run_ref];
-                newSelectedRun["scheduled_departure_utc"] = response.departures[0].scheduled_departure_utc;
-                setSelectedRun(newSelectedRun);
-            }
-            else {
-                const selectedDepartureTime = selectedRunRef.current.scheduled_departure_utc;
-                let newSelectedRun = runs[selectedRunRef.current.run_ref];
-                newSelectedRun["scheduled_departure_utc"] = selectedDepartureTime;
-                setSelectedRun(newSelectedRun);
-            }
-        }
-    }, [setSelectedRun]);
-
-    const getDeparturesAndSelectedRun = useCallback(async () => {
-        getSelectedRun(await getDepartures());
-    }, [getSelectedRun, getDepartures]);
-
-    useEffect(() => {
-        getDeparturesAndSelectedRun();
-        const interval = setInterval(getDeparturesAndSelectedRun, 15000);
-
-        return () => clearInterval(interval);
-    }, [getDeparturesAndSelectedRun]);
+export default function NextDeparturesElem() {
+    const { getDeparturesAndDisruptions } = useContext(DeparturesContext);
 
     return (
         <div className="border-right height100" style={{width: "30%"}}>
             <div className="position-relative background-grey font-x-large text-align-center padding-15px font-large">
                 <div>Next Departures</div>
-                <div id="refresh_icon_box" className="rounded_h flex-center position-absolute" style={{height: "35px", width: "35px", right: "0px", bottom: "0px"}} onClick={getDeparturesAndSelectedRun}>
+                <div id="refresh_icon_box" className="rounded_h flex-center position-absolute" style={{height: "35px", width: "35px", right: "0px", bottom: "0px"}} onClick={getDeparturesAndDisruptions}>
                     <img alt="update" src="img/refresh.svg" width="20px" height="20px"></img>
                 </div>
             </div>
             
-            <DeparturesListElem selectedStop={selectedStop} departures={departures} selectedRun={selectedRun} setSelectedRun={setSelectedRun} setShowDisruptions={setShowDisruptions} setDisruptionIDs={setDisruptionIDs}/>
+            <DeparturesListElem />
         </div>
     );
 }

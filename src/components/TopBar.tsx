@@ -1,13 +1,16 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { APIContext } from "../context/APIContext";
 
-export default function TopBar({devID, devKey, setDevID, setDevKey}) {
-    let [curTime, setCurTime] = useState(new Date().toLocaleTimeString());
+export default function TopBar() {
+    const { devID, devKey, setDevIDAndUpdateLocalStorage, setDevKeyAndUpdateLocalStorage } = useContext(APIContext);
+
+    const [curTime, setCurTime] = useState<string>(new Date().toLocaleTimeString());
+
     useEffect(() => {
-        const interval = setInterval(() => {
+        const clockInterval = setInterval(() => {
             setCurTime(new Date().toLocaleTimeString());
-        }, 100);
-
-        return () => clearInterval(interval);
+        }, 500);
+        return () => clearInterval(clockInterval);
     }, []);
 
     return (
@@ -21,9 +24,13 @@ export default function TopBar({devID, devKey, setDevID, setDevKey}) {
                 </div>
                 <div id="settings_elem" className="z-index-1k black-background padding-15px">
                     <div>Developer ID</div>
-                    <input id="dev_id_input" type="text" value={devID} onInput={() => {localStorage.setItem("dev_id", document.getElementById("dev_id_input").value); setDevID(localStorage.getItem("dev_id"))}} style={{width: "162px"}}></input>
+                    <input type="text" value={devID} onChange={(e) => {
+                        setDevIDAndUpdateLocalStorage((e.target as HTMLInputElement).value);
+                    }} style={{width: "162px"}}></input>
                     <div>Developer key</div>
-                    <input id="dev_key_input" type="text" value={devKey} onInput={() => {localStorage.setItem("dev_key", document.getElementById("dev_key_input").value); setDevKey(localStorage.getItem("dev_key"))}} style={{width: "162px"}}></input>
+                    <input type="text" value={devKey} onChange={(e) => {
+                        setDevKeyAndUpdateLocalStorage((e.target as HTMLInputElement).value);
+                    }} style={{width: "162px"}}></input>
                 </div>
             </div>
         </>

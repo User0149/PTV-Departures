@@ -1,4 +1,9 @@
-export default function Disruption({disruptionIDs, disruptions, showDisruptions, setShowDisruptions}) {
+import { useContext } from "react";
+import { DisruptionContext } from "../context/DisruptionContext";
+
+export default function Disruption() {
+    const { showDisruptions, setShowDisruptions, disruptionIDs, disruptions } = useContext(DisruptionContext);
+
     if (!showDisruptions) return <></>;
     
     return (

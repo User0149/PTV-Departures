@@ -1,17 +1,23 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState, type RefObject } from "react";
 import { MapContainer, TileLayer, Marker, Circle, Tooltip } from "react-leaflet";
 import { iconRoute, iconRed } from "../lib/markers";
+import { LocationContext } from "../context/LocationContext";
+import { DeparturesContext } from "../context/DeparturesContext";
 
-export default function MapElem({realPos, pos, setPos, selectedRun, selectedStop, setSelectedStop, stopsList, useMapPos, setUseMapPos}) {
-    const [map, setMap] = useState(null);
+export default function MapElem() {
+    const { pos, setPos, setUseMapPos } = useContext(LocationContext);
+    const { stopsList, stopsListFetched, selectedStop, setSelectedStop, selectedRun } = useContext(DeparturesContext);
 
+    const [map, setMap] = useState<any>(null);
+
+    // intialise map center to `pos`
     useEffect(() => {
         if (map && ((map.getCenter().lat === 0  && map.getCenter().lng === 0)  || (map.getCenter().lat === -37.8136  && map.getCenter().lng === 144.9631))) {
             map.setView(pos, 15);
         }
     }, [pos, map]);
     
-    if (!stopsList && !selectedStop) {
+    if (!stopsListFetched) {
         return (
             <div className="height100" style={{width: "40%"}}></div>
         );
@@ -34,32 +40,30 @@ export default function MapElem({realPos, pos, setPos, selectedRun, selectedStop
                     stopsList.map(stop => {
                         return (
                             <Marker 
-                            key={stop.stop_id.toString() + stop.route_type.toString() + "_marker"} 
-                            position={[stop.stop_latitude, stop.stop_longitude]} 
-                            icon={iconRoute(stop.route_type, (stop.stop_id === selectedStop.stop_id && stop.route_type === selectedStop.route_type ? 40 : 30))} 
-                            opacity={(stop.stop_id === selectedStop.stop_id && stop.route_type === selectedStop.route_type ? 1.0 : 0.9)} 
-                            zIndexOffset={(stop.stop_id === selectedStop.stop_id && stop.route_type === selectedStop.route_type ? 1500 : 0) + (stop.route_type === 0 ? 1 : 0)}
-                            eventHandlers={
-                                {
-                                    mouseover: (e) => document.getElementById(`${stop.route_type},${stop.stop_id}`).style.backgroundColor="#d5d5d5", 
-                                    mouseout: (e) => {
+                                key={String(stop.stop_id) + String(stop.route_type) + "_marker"}
+                                position={[stop.stop_latitude!, stop.stop_longitude!]} 
+                                icon={iconRoute(stop.route_type!, (stop.stop_id === selectedStop.stop_id && stop.route_type === selectedStop.route_type ? 40 : 30))} 
+                                opacity={(stop.stop_id === selectedStop.stop_id && stop.route_type === selectedStop.route_type ? 1.0 : 0.9)} 
+                                zIndexOffset={(stop.stop_id === selectedStop.stop_id && stop.route_type === selectedStop.route_type ? 1500 : 0) + (stop.route_type === 0 ? 1 : 0)}
+                                eventHandlers={{
+                                    mouseover: () => document.getElementById(`${stop.route_type},${stop.stop_id}`)!.style.backgroundColor="#d5d5d5", 
+                                    mouseout: () => {
                                         if (stop.stop_id === selectedStop.stop_id && stop.route_type === selectedStop.route_type) {
-                                            document.getElementById(`${stop.route_type},${stop.stop_id}`).style.backgroundColor = "#d5d5d5";
+                                            document.getElementById(`${stop.route_type},${stop.stop_id}`)!.style.backgroundColor = "#d5d5d5";
                                         }
                                         else {
-                                            document.getElementById(`${stop.route_type},${stop.stop_id}`).style.removeProperty("background-color");
+                                            document.getElementById(`${stop.route_type},${stop.stop_id}`)!.style.removeProperty("background-color");
                                         }
                                     },
-                                    click: (e) => {setSelectedStop(stop)}
-                                }
-                            }>
+                                    click: () => {setSelectedStop(stop)}
+                                }}>
                                 <Tooltip>{stop.stop_name}</Tooltip>
                             </Marker>
                         );
                     })
                 }
                 {
-                    (selectedRun && selectedRun.vehicle_position && <Marker position={[selectedRun.vehicle_position.latitude, selectedRun.vehicle_position.longitude]} icon={iconRoute(selectedRun.route_type, 40)}>
+                    (selectedRun && selectedRun.vehicle_position && <Marker position={[selectedRun.vehicle_position.latitude!, selectedRun.vehicle_position.longitude!]} icon={iconRoute(selectedRun.route_type!, 40)}>
                         <Tooltip>Vehicle position</Tooltip>
                     </Marker>)
                 }
@@ -69,20 +73,20 @@ export default function MapElem({realPos, pos, setPos, selectedRun, selectedStop
             <div className="position-absolute z-index-1k white-text text-align-center" style={{right: "0px", bottom: "0px"}}>
                 <div className="set_location_button" onClick={() => {
                     setPos([map.getCenter().lat, map.getCenter().lng]);
-                    setUseMapPos(useMapPos + 1);
+                    setUseMapPos(true);
                 }}>
                     Set location
                 </div>
                 <div className="set_location_button" onClick={() => {
-                    setUseMapPos(0);
-                    map.setView(realPos, 15);
+                    setUseMapPos(false);
+                    map.setView(pos, 15);
                 }}>
                     Go to current location
                 </div>
                 {
                     (selectedRun && selectedRun.vehicle_position && 
                         <div className="set_location_button" onClick={() => {
-                            map.setView([selectedRun.vehicle_position.latitude, selectedRun.vehicle_position.longitude], 14);
+                            map.setView([selectedRun.vehicle_position!.latitude!, selectedRun.vehicle_position!.longitude!], 14);
                         }}>
                             Go to vehicle position
                         </div>
