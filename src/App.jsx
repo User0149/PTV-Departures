@@ -1,11 +1,11 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 
-import NearestStopsElem from "./components/NearestStopsElem.jsx";
-import NextDeparturesElem from "./components/NextDeparturesElem.jsx";
-import MapElem from "./components/MapElem.jsx";
-import TopBar from "./components/TopBar.jsx";
-import APIQuery from "./lib/api.js";
-import Disruption from "./components/Disruption.jsx";
+import NearestStopsElem from "./components/NearestStopsElem";
+import NextDeparturesElem from "./components/NextDeparturesElem";
+import MapElem from "./components/MapElem";
+import TopBar from "./components/TopBar";
+import APIQuery from "./lib/api";
+import Disruption from "./components/Disruption";
 
 import "./App.css";
 import "./styles/utilities.css";

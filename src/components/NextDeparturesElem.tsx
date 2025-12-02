@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 
-import APIQuery from "../lib/api.js";
+import APIQuery from "../lib/api";
 
 async function NextDepartures(selectedStop) {
     if (selectedStop == null) return {};

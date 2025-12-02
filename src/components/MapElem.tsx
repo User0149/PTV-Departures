@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Circle, Tooltip } from "react-leaflet";
-import { iconRoute, iconRed } from "../lib/Markers.js";
+import { iconRoute, iconRed } from "../lib/markers";
 
 export default function MapElem({realPos, pos, setPos, selectedRun, selectedStop, setSelectedStop, stopsList, useMapPos, setUseMapPos}) {
     const [map, setMap] = useState(null);
