@@ -1,6 +1,8 @@
 import { useContext } from "react";
+
+import type { departureType, routeType, routeTypeType, runType } from "../types/types";
+
 import { DeparturesContext } from "../context/DeparturesContext";
-import type { departureType, runType } from "../types/types";
 import { DisruptionContext } from "../context/DisruptionContext";
 
 interface DepartureItemProps {
@@ -12,71 +14,68 @@ function DepartureItem({ departure, run }: DepartureItemProps) {
     const { selectedStop, selectedRun, setSelectedRun } = useContext(DeparturesContext);
     const { setDisruptionIDs, setShowDisruptions } = useContext(DisruptionContext);
 
-    const scheduled_departure_utc = new Date(departure.scheduled_departure_utc!);
-    const estimated_departure_utc = (departure.estimated_departure_utc !== undefined ? new Date(departure.estimated_departure_utc) : null);
+    const scheduledDepartureUTC: Date = new Date(departure.scheduled_departure_utc!);
+    const estimatedDepartureUTC: Date | null = (departure.estimated_departure_utc ? new Date(departure.estimated_departure_utc) : null);
 
-    const route_id = departure.route_id;
-    const platform_number = departure.platform_number;
-    let [route_number, route_name] = ["", ""];
+    const platformNumber: string | undefined = departure.platform_number;
 
-    const route_type = selectedStop.route_type;
+    const routeID: number = departure.route_id!;
+    const routeType: routeTypeType = selectedStop.route_type!;
 
-    for (const route of selectedStop.routes!) {
-        if (route.route_id === route_id) {
-            [route_number, route_name] = [route.route_number!, route.route_name!];
-        }
-    }
+    const route: routeType | undefined = selectedStop.routes?.find(r => r.route_id === routeID);
+    const [routeNumber, routeName] = [route?.route_number, route?.route_name];
 
     // I like 24-hour time
-    const scheduled_string = scheduled_departure_utc.toLocaleTimeString("fr-FR").slice(0,5);
-    const scheduled_string_extended = (scheduled_departure_utc.toDateString() === (new Date()).toDateString() ? "" : `${scheduled_departure_utc.toDateString().slice(0,3)} `) + scheduled_string;
+    const scheduledTimeString = scheduledDepartureUTC.toLocaleTimeString("fr-FR").slice(0,5);
+    const scheduledTimeStringExtended = (scheduledDepartureUTC.toDateString() === (new Date()).toDateString() ? "" : `${scheduledDepartureUTC.toDateString().slice(0,3)} `) + scheduledTimeString; // includes day of week if not today
 
-    const estimated_string = (estimated_departure_utc ? (estimated_departure_utc.getTime() === scheduled_departure_utc.getTime() ? scheduled_string : estimated_departure_utc.toLocaleTimeString("fr-FR")) : scheduled_string);
+    // if the estimated time is the same as the scheduled time or doesn't exist, display the scheduled time instead
+    const estimatedTimeString = (estimatedDepartureUTC && estimatedDepartureUTC.getTime() !== scheduledDepartureUTC.getTime()) ? estimatedDepartureUTC.toLocaleTimeString("fr-FR") : scheduledTimeString;
+
+    const isSelected = (run.run_ref === selectedRun.run_ref && run.route_type === selectedRun.route_type);
+
+    
+    const borderColour=["border-[#008cce]", "border-[#71be46]", "border-[#ff8200]", "border-[#7d4296]", "border-[#ff8200]"];
 
     return (
-        <div className="width100 departure_box flex" style={((run.run_ref === selectedRun.run_ref && run.route_type === selectedRun.route_type) ? {backgroundColor: "#d5d5d5"} : {})} onClick={() => {
+        <div className={`flex w-full min-h-30 border-b border-[gray] hover:bg-[#d5d5d5] cursor-pointer ${isSelected ? "bg-[#d5d5d5]" : ""}`} onClick={() => {
             const newSelectedRun = run;
             newSelectedRun.scheduled_departure_utc = departure.scheduled_departure_utc;
             setSelectedRun(newSelectedRun);
         }}>
-            <div style={{width: "calc(100% - 100px)", marginLeft: "10px"}}>
+            <div className="flex-1 p-2 space-y-3">
                 <div className="flex">
-                    <div className="margin-top-10px" style={{minWidth: "75px", paddingRight: "15px"}}>
-                        {scheduled_string_extended}
+                    <div className="min-w-20 mr-4">
+                        {scheduledTimeStringExtended}
                     </div>
-                    <div className="margin-top-10px">
+                    <div>
                         to {run.destination_name}
                     </div>
                 </div>
 
-                <div style={{fontSize: "small", color: "#555555", marginTop: "5px"}}>
-                    {platform_number ? `Platform ${platform_number}` : ""}
+                <div className="mt-1 text-sm text-[#555555]">
+                    {platformNumber ? `Platform ${platformNumber}` : ""}
                 </div>
 
-                <div className="flex" style={{marginTop: "15px", marginBottom: "10px", alignItems: "center"}}>
-                    <div className="flex" style={{minWidth: "90px", alignItems: "center"}}>
-                        <div className="small_route_button" style={{border: `1.5px solid ${["#008cce","#71be46","#ff8200","#7d4296","#ff8200"][route_type!]}`, fontSize: "0.9em"}}>
-                            {(route_number ? route_number : route_name)}
+                <div className="flex items-center mb-2">
+                    <div className="flex items-center min-w-20 mr-4">
+                        <div className={`inline-block px-[5px] py-[1px] text-sm text-center rounded-full border-[1.5px] ${borderColour[routeType!]}`}>
+                            {(routeNumber ? routeNumber : routeName)}
                         </div>
                     </div>
 
-                    {departure.disruption_ids!.length >= 1 && <img alt="disruption" src="img/exclamation_mark.svg" height="23px" className="clickable" onClick={() => {
+                    {departure.disruption_ids!.length >= 1 && <img alt="disruption" src="img/exclamation_mark.svg" width="24" className="cursor-pointer" onClick={() => {
                         setDisruptionIDs(departure.disruption_ids!);
                         setShowDisruptions(true);
-                    }}></img>}
+                    }}/>}
                 </div>
             </div>
-            <div className="float-right-10 flex-center">
+
+            <div className="ml-auto mr-3 flex items-center">
                 <div>
-                    {
-                        (estimated_string !== scheduled_string ?
-                            <p className="text-align-center" style={{color: "gray", fontSize: "small", marginBottom: "2px"}}>live</p>
-                            :
-                            <p className="text-align-center" style={{color: "gray", fontSize: "small", marginBottom: "2px"}}>scheduled</p>
-                        )
-                    }
-                    <p className="estimated_button" style={{marginTop: "0px", backgroundColor: `${(estimated_string === scheduled_string ? "#ffffa8" : "#aaffaa")}`}}>
-                        {estimated_string ? estimated_string : scheduled_string}
+                    <p className="text-center text-[gray] text-sm mb-[2px]">{(estimatedTimeString !== scheduledTimeString ? "live" : "scheduled")}</p>
+                    <p className={`border rounded-full text-center text-lg p-1 ${(estimatedTimeString === scheduledTimeString ? "bg-[#ffffa8]" : "bg-[#aaffaa]")}`}>
+                        {estimatedTimeString}
                     </p>
                 </div>
             </div>
@@ -86,26 +85,25 @@ function DepartureItem({ departure, run }: DepartureItemProps) {
 
 function DeparturesListElem() {
     const { selectedStop, departuresList, departuresListFetched, runs } = useContext(DeparturesContext);
+
     if (!departuresListFetched) {
         return (
             <></>
         );
     }
+
     if (departuresList.length === 0) {
         return (
-            <div className="height100 text-align-center">
-                <p>There are no departures from this stop.</p>
-            </div>
+            <p className="text-center p-2">There are no departures from this stop.</p>
         );
     }
+
     return (
-        <div className="overflow" style={{height: "calc(100% - 54px)"}}>
+        <div>
             {
-                departuresList.map(departure => {
-                    return (
-                        <DepartureItem key={String(departure.run_ref) +","+ String(selectedStop.stop_id)+","+departure.scheduled_departure_utc!}departure={departure} run={runs[departure.run_ref!]} />
-                    );
-                })
+                departuresList.map(departure => 
+                    <DepartureItem key={String(departure.run_ref!) + "," + String(selectedStop.stop_id) + "," + departure.scheduled_departure_utc!} departure={departure} run={runs[departure.run_ref!]} />
+                )
             }
         </div>
     );
@@ -115,15 +113,17 @@ export default function NextDeparturesElem() {
     const { getDeparturesAndDisruptions } = useContext(DeparturesContext);
 
     return (
-        <div className="border-right height100" style={{width: "30%"}}>
-            <div className="position-relative background-grey font-x-large text-align-center padding-15px font-large">
+        <div className="flex flex-col border-r border-[gray] w-3/10">
+            <div className="relative p-3 bg-[#45484a] text-white text-lg text-center">
                 <div>Next Departures</div>
-                <div id="refresh_icon_box" className="rounded_h flex-center position-absolute" style={{height: "35px", width: "35px", right: "0px", bottom: "0px"}} onClick={getDeparturesAndDisruptions}>
-                    <img alt="update" src="img/refresh.svg" width="20px" height="20px"></img>
+                <div className="absolute right-1 bottom-1 h-9 w-9 flex justify-center items-center rounded-full cursor-pointer hover:bg-[gray]" onClick={getDeparturesAndDisruptions}>
+                    <img alt="update" src="img/refresh.svg" width="20" height="20"></img>
                 </div>
             </div>
             
-            <DeparturesListElem />
+            <div className="flex-1 overflow-auto no-scrollbar">
+                <DeparturesListElem />
+            </div>
         </div>
     );
 }

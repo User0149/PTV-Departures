@@ -1,25 +1,24 @@
-import "./App.css";
-import "./styles/utilities.css";
-
 import ContextProviders from "./context/ContextProviders";
 
 import NearestStopsElem from "./components/NearestStopsElem";
 import NextDeparturesElem from "./components/NextDeparturesElem";
 import MapElem from "./components/MapElem";
 import TopBar from "./components/TopBar";
-import Disruption from "./components/Disruption";
+import DisruptionsBox from "./components/DisruptionsBox";
 
 function App() {
     return (
         <ContextProviders>
-            <TopBar />
-            <div className="flex" style={{height: "calc(100vh - 30px)"}}>
-                <NearestStopsElem />
-                <NextDeparturesElem />
-                <MapElem />
+            <div className="flex flex-col h-full w-full">
+                <TopBar />
+                <div className="flex flex-1 overflow-auto no-scrollbar">
+                    <NearestStopsElem />
+                    <NextDeparturesElem />
+                    <MapElem />
+                </div>
             </div>
 
-            <Disruption />
+            <DisruptionsBox />
         </ContextProviders>
     );
 }

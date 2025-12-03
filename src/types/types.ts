@@ -45,6 +45,6 @@ export type departureType = {
     run_ref?: string,
     disruption_ids?: number[],
     scheduled_departure_utc?: string,
-    estimated_departure_utc?: string,
+    estimated_departure_utc?: string | null,
     platform_number?: string
 };

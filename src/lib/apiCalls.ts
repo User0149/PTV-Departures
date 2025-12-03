@@ -1,15 +1,18 @@
 import { HmacSHA1 } from "crypto-js";
+
 import type { departureType, disruptionType, routeTypeType, runType, stopType } from "../types/types";
+
 function hmacSHA1(message: string, key: string) {
     return HmacSHA1(message, key).toString();
 }
 
-async function APIQuery(query_string: string, devID: string, devKey: string) {
-    const base = "https://timetableapi.ptv.vic.gov.au";
-    const request = `${query_string}${query_string.includes('?')?'&':'?'}devid=${devID}`;
-    const url = `${base}${request}&signature=${hmacSHA1(request, devKey)}`;
+async function APIQuery(requestPath: string, devID: string, devKey: string) {
+    const baseURL = "https://timetableapi.ptv.vic.gov.au";
+    const requestURLWithID = `${requestPath}${requestPath.includes('?') ? '&' : '?'}devid=${devID}`;
+    const fullRequestURL = `${baseURL}${requestURLWithID}&signature=${hmacSHA1(requestURLWithID, devKey)}`;
+
     try {
-        const response = await fetch(url);
+        const response = await fetch(fullRequestURL);
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);
         }

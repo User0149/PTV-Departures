@@ -1,9 +1,13 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+
 import type { departureType, runType, setState, stopType } from "../types/types";
+
+import { NearestStops, NextDepartures } from "../lib/apiCalls";
+
 import { LocationContext } from "./LocationContext";
 import { APIContext } from "./APIContext";
-import { NearestStops, NextDepartures } from "../lib/apiCalls";
 import { DisruptionContext } from "./DisruptionContext";
+
 
 interface IDeparturesContext {
     stopsListFetched: boolean;

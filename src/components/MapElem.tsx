@@ -1,11 +1,13 @@
-import { useContext, useEffect, useRef, useState, type RefObject } from "react";
+import { useContext, useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Circle, Tooltip } from "react-leaflet";
+
 import { iconRoute, iconRed } from "../lib/markers";
+
 import { LocationContext } from "../context/LocationContext";
 import { DeparturesContext } from "../context/DeparturesContext";
 
 export default function MapElem() {
-    const { pos, setPos, setUseMapPos } = useContext(LocationContext);
+    const { pos, setPos, setUseMapPos, getRealLocation } = useContext(LocationContext);
     const { stopsList, stopsListFetched, selectedStop, setSelectedStop, selectedRun } = useContext(DeparturesContext);
 
     const [map, setMap] = useState<any>(null);
@@ -19,36 +21,37 @@ export default function MapElem() {
     
     if (!stopsListFetched) {
         return (
-            <div className="height100" style={{width: "40%"}}></div>
+            <div className="w-2/5"></div>
         );
     }
 
     return (
-        <div className="height100 position-relative" style={{width: "40%"}}>
+        <div className="w-2/5 relative">
             <MapContainer center={[-37.8136, 144.9631]} zoom={15} scrollWheelZoom={true} ref={setMap} style={{width: "100%", height: "100%"}}>
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
 
-                <Marker position={pos} icon={iconRed} zIndexOffset={1000}>
-                    <Tooltip>Your location</Tooltip>
-                </Marker>
-                <Circle center={pos} pathOptions={{color: "green", fill: false, dashArray: "15"}} radius={1000}/>
+                {/* indicate current location and range of 1 km radius */}
+                <Marker position={pos} icon={iconRed} zIndexOffset={1000} />
+                <Circle center={pos} pathOptions={{color: "green", fill: false, dashArray: "15"}} radius={1000} />
 
+                {/* stop icons */}
                 {
                     stopsList.map(stop => {
+                        const isSelected = (stop.stop_id === selectedStop.stop_id && stop.route_type === selectedStop.route_type);
                         return (
                             <Marker 
                                 key={String(stop.stop_id) + String(stop.route_type) + "_marker"}
                                 position={[stop.stop_latitude!, stop.stop_longitude!]} 
-                                icon={iconRoute(stop.route_type!, (stop.stop_id === selectedStop.stop_id && stop.route_type === selectedStop.route_type ? 40 : 30))} 
-                                opacity={(stop.stop_id === selectedStop.stop_id && stop.route_type === selectedStop.route_type ? 1.0 : 0.9)} 
-                                zIndexOffset={(stop.stop_id === selectedStop.stop_id && stop.route_type === selectedStop.route_type ? 1500 : 0) + (stop.route_type === 0 ? 1 : 0)}
+                                icon={iconRoute(stop.route_type!, isSelected ? 40 : 30)} 
+                                opacity={isSelected ? 1.0 : 0.9} 
+                                zIndexOffset={(isSelected ? 1500 : 0) + (stop.route_type === 0 ? 1 : 0)}
                                 eventHandlers={{
                                     mouseover: () => document.getElementById(`${stop.route_type},${stop.stop_id}`)!.style.backgroundColor="#d5d5d5", 
                                     mouseout: () => {
-                                        if (stop.stop_id === selectedStop.stop_id && stop.route_type === selectedStop.route_type) {
+                                        if (isSelected) {
                                             document.getElementById(`${stop.route_type},${stop.stop_id}`)!.style.backgroundColor = "#d5d5d5";
                                         }
                                         else {
@@ -62,30 +65,39 @@ export default function MapElem() {
                         );
                     })
                 }
+
+                {/* Vehicle position of `selectedRun` */}
                 {
                     (selectedRun && selectedRun.vehicle_position && <Marker position={[selectedRun.vehicle_position.latitude!, selectedRun.vehicle_position.longitude!]} icon={iconRoute(selectedRun.route_type!, 40)}>
                         <Tooltip>Vehicle position</Tooltip>
                     </Marker>)
                 }
             </MapContainer>
+            
+            {/* mark the center of the map with a crosshair */}
+            <img alt="dot" src="img/crosshair.svg" width="20" height="20" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-1000 pointer-events-none"/>
 
-            <img alt="dot" src="img/crosshair.svg" width="20px" height="20px" className="position-absolute z-index-1k" style={{left: "50%", top: "calc(50% + 15px)", marginTop: "-10px", marginLeft: "-10px", pointerEvents: "none"}}/>
-            <div className="position-absolute z-index-1k white-text text-align-center" style={{right: "0px", bottom: "0px"}}>
-                <div className="set_location_button" onClick={() => {
+            {/* map actions menu */}
+            <div className="absolute right-0 bottom-0 z-1000 text-white text-center divide-y divide-[gray] divide-solid">
+                <div className="opacity-70 bg-black p-3 cursor-pointer hover:opacity-80" onClick={() => {
                     setPos([map.getCenter().lat, map.getCenter().lng]);
                     setUseMapPos(true);
                 }}>
                     Set location
                 </div>
-                <div className="set_location_button" onClick={() => {
+
+                <div className="opacity-70 bg-black p-3 cursor-pointer hover:opacity-80" onClick={async () => {
                     setUseMapPos(false);
-                    map.setView(pos, 15);
+
+                    const newPos = await getRealLocation();
+                    map.setView(newPos, 15);
                 }}>
                     Go to current location
                 </div>
+
                 {
                     (selectedRun && selectedRun.vehicle_position && 
-                        <div className="set_location_button" onClick={() => {
+                        <div className="opacity-70 bg-black p-3 cursor-pointer hover:opacity-80" onClick={() => {
                             map.setView([selectedRun.vehicle_position!.latitude!, selectedRun.vehicle_position!.longitude!], 14);
                         }}>
                             Go to vehicle position
@@ -94,6 +106,5 @@ export default function MapElem() {
                 }
             </div>
         </div>
-
     );
 }

@@ -7,6 +7,7 @@ interface ILocationContext {
     pos: positionType;
     setPos: setState<positionType>;
     setUseMapPos: setState<boolean>;
+    getRealLocation: () => Promise<positionType>;
     getLocation: () => Promise<void>;
 }
 
@@ -19,30 +20,35 @@ export const LocationContext = createContext<ILocationContext>({
     pos: [0, 0],
     setPos: () => {},
     setUseMapPos: () => {},
+    getRealLocation: async () => [0, 0],
     getLocation: async () => {}
 });
 
 export default function LocationContextProvider({ children  }: LocationContextProviderProps) {
     const [useMapPos, setUseMapPos] = useState<boolean>(false);
     const [pos, setPos] = useState<positionType>([0, 0]);
+
     const [posInitialised, setPosInitialised] = useState<boolean>(false);
+
+    const getRealLocation = async () => {
+        const curPos: GeolocationPosition = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, (err) => {
+                throw Error(`Could not get location: ${err}`)
+            });
+        });
+
+        // we don't want to register position changes by a very tiny amount
+        const [lat, long] = [Math.round(curPos.coords.latitude * 1e6) / 1e6, Math.round(curPos.coords.longitude * 1e6) / 1e6];
+        return [lat, long] as positionType;
+    }
 
     const getLocation = async () => {
         if (!useMapPos) {
-            const curPos: GeolocationPosition = await new Promise<GeolocationPosition>((resolve, reject) => {
-                navigator.geolocation.getCurrentPosition(resolve, (err) => {
-                    throw Error(`Could not get location: ${err}`)
-                });
-            });
-
-            const [lat, long] = [Math.round(curPos.coords.latitude*1e6)/1e6, Math.round(curPos.coords.longitude*1e6)/1e6];
-
+            const [lat, long] = await getRealLocation();
             setPos([lat, long]);
-            setPosInitialised(true);
         }
-        else {
-            setPosInitialised(true);
-        }
+
+        setPosInitialised(true);
     };
 
     useEffect(() => {
@@ -57,6 +63,7 @@ export default function LocationContextProvider({ children  }: LocationContextPr
         pos,
         setPos,
         setUseMapPos,
+        getRealLocation,
         getLocation
     };
 
