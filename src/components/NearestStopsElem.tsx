@@ -1,13 +1,13 @@
 import { useContext } from "react";
 
-import type { stopType } from "../types/types";
+import type { Stop } from "../types/types";
 
 import { DeparturesContext } from "../context/DeparturesContext";
 import { LocationContext } from "../context/LocationContext";
 import { APIContext } from "../context/APIContext";
 
 interface StopItemProps {
-    stop: stopType;
+    stop: Stop;
 }
 
 function StopItem({ stop }: StopItemProps) {

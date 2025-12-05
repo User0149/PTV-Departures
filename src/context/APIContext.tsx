@@ -1,11 +1,11 @@
 import { createContext, useState, type ReactNode } from "react";
-import type { setState } from "../types/types";
+import type { StateSetter } from "../types/types";
 
 interface IAPIContext {
     showSettings: boolean;
     devID: string;
     devKey: string;
-    setShowSettings: setState<boolean>;
+    setShowSettings: StateSetter<boolean>;
     setDevIDAndUpdateLocalStorage: (newDevID: string) => void;
     setDevKeyAndUpdateLocalStorage: (newDevKey: string) => void;
 }

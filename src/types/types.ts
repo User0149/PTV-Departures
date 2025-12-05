@@ -1,18 +1,18 @@
-export type setState<T> = React.Dispatch<React.SetStateAction<T>>;
+export type StateSetter<T> = React.Dispatch<React.SetStateAction<T>>;
 
-export type positionType = [latitude: number, longitude: number];
+export type Position = [latitude: number, longitude: number];
 
-export type routeTypeType = 0 | 1 | 2 | 3 | 4;
+export type RouteType = 0 | 1 | 2 | 3 | 4;
 
-export type disruptionType = {
+export type Disruption = {
     title?: string,
     description?: string,
     url?: string
 };
 
-export type runType = {
+export type Run = {
     run_ref?: string,
-    route_type?: routeTypeType,
+    route_type?: RouteType,
     destination_name?: string,
     scheduled_departure_utc?: string,
     vehicle_position?: {
@@ -21,25 +21,25 @@ export type runType = {
     }
 };
 
-export type routeType = {
+export type Route = {
     route_name?: string,
     route_number?: string,
-    route_type?: routeTypeType,
+    route_type?: RouteType,
     route_id?: number
 };
 
-export type stopType = {
+export type Stop = {
     disruption_ids?: number[],
     stop_distance?: number,
     stop_name?: string,
     stop_id?: number,
-    routes?: routeType[],
-    route_type?: routeTypeType,
+    routes?: Route[],
+    route_type?: RouteType,
     stop_latitude?: number,
     stop_longitude?: number
 };
 
-export type departureType = {
+export type Departure = {
     stop_id?: number,
     route_id?: number,
     run_ref?: string,

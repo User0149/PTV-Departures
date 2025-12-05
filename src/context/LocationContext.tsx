@@ -1,13 +1,13 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
 
-import type { positionType, setState } from "../types/types";
+import type { Position, StateSetter } from "../types/types";
 
 interface ILocationContext {
     posInitialised: boolean;
-    pos: positionType;
-    setPos: setState<positionType>;
-    setUseMapPos: setState<boolean>;
-    getRealLocation: () => Promise<positionType>;
+    pos: Position;
+    setPos: StateSetter<Position>;
+    setUseMapPos: StateSetter<boolean>;
+    getRealLocation: () => Promise<Position>;
     getLocation: () => Promise<void>;
 }
 
@@ -26,7 +26,7 @@ export const LocationContext = createContext<ILocationContext>({
 
 export default function LocationContextProvider({ children  }: LocationContextProviderProps) {
     const [useMapPos, setUseMapPos] = useState<boolean>(false);
-    const [pos, setPos] = useState<positionType>([0, 0]);
+    const [pos, setPos] = useState<Position>([0, 0]);
 
     const [posInitialised, setPosInitialised] = useState<boolean>(false);
 
@@ -39,7 +39,7 @@ export default function LocationContextProvider({ children  }: LocationContextPr
 
         // we don't want to register position changes by a very tiny amount
         const [lat, long] = [Math.round(curPos.coords.latitude * 1e6) / 1e6, Math.round(curPos.coords.longitude * 1e6) / 1e6];
-        return [lat, long] as positionType;
+        return [lat, long] as Position;
     }
 
     const getLocation = async () => {

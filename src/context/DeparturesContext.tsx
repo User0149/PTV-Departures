@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
-import type { departureType, runType, setState, stopType } from "../types/types";
+import type { Departure, Run, StateSetter, Stop } from "../types/types";
 
 import { NearestStops, NextDepartures } from "../lib/apiCalls";
 
@@ -13,15 +13,15 @@ interface IDeparturesContext {
     stopsListFetched: boolean;
     departuresListFetched: boolean;
 
-    stopsList: stopType[];
-    selectedStop: stopType;
+    stopsList: Stop[];
+    selectedStop: Stop;
 
-    departuresList: departureType[];
-    runs: Record<string, runType>;
-    selectedRun: runType;
+    departuresList: Departure[];
+    runs: Record<string, Run>;
+    selectedRun: Run;
 
-    setSelectedStop: setState<stopType>;
-    setSelectedRun: setState<runType>;
+    setSelectedStop: StateSetter<Stop>;
+    setSelectedRun: StateSetter<Run>;
 
     getStops: () => Promise<void>;
     getDeparturesAndDisruptions: () => Promise<void>;
@@ -55,13 +55,13 @@ export default function DeparturesContextProvider({ children }: DeparturesContex
     const { setDisruptions } = useContext(DisruptionContext);
 
     const [stopsListFetched, setStopsListFetched] = useState<boolean>(false);
-    const [stopsList, setStopsList] = useState<stopType[]>([]);
-    const [selectedStop, setSelectedStop] = useState<stopType>({});
+    const [stopsList, setStopsList] = useState<Stop[]>([]);
+    const [selectedStop, setSelectedStop] = useState<Stop>({});
 
     const [departuresListFetched, setDeparturesListFetched] = useState<boolean>(false);
-    const [departuresList, setDeparturesList] = useState<departureType[]>([]);
-    const [runs, setRuns] = useState<Record<string,runType>>({});
-    const [selectedRun, setSelectedRun] = useState<runType>({});
+    const [departuresList, setDeparturesList] = useState<Departure[]>([]);
+    const [runs, setRuns] = useState<Record<string, Run>>({});
+    const [selectedRun, setSelectedRun] = useState<Run>({});
 
     const getStops = async () => {
         if (!posInitialised) return;
@@ -107,14 +107,14 @@ export default function DeparturesContextProvider({ children }: DeparturesContex
             try {
                 // if selectedRun isn't chosen or isn't available for this stop, default to next run for this stop
                 if (selectedRun?.run_ref === undefined || !(selectedRun.run_ref in runs)) {
-                    const newSelectedRun: runType = runs[departures[0].run_ref!];
+                    const newSelectedRun: Run = runs[departures[0].run_ref!];
                     newSelectedRun.scheduled_departure_utc = departures[0].scheduled_departure_utc;
                     setSelectedRun(newSelectedRun);
                 }
                 // add `scheduled_departure_utc` property to this run because PTV API doesn't provide it
                 else {
                     // update properties of `selectedRun` (e.g., `vehicle_position`)
-                    const newSelectedRun: runType = runs[selectedRun.run_ref!];
+                    const newSelectedRun: Run = runs[selectedRun.run_ref!];
                     newSelectedRun.scheduled_departure_utc = selectedRun.scheduled_departure_utc!;
                     setSelectedRun(newSelectedRun);
                 }

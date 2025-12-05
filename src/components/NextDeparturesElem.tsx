@@ -1,13 +1,13 @@
 import { useContext } from "react";
 
-import type { departureType, routeType, routeTypeType, runType } from "../types/types";
+import type { Departure, Route, RouteType, Run } from "../types/types";
 
 import { DeparturesContext } from "../context/DeparturesContext";
 import { DisruptionContext } from "../context/DisruptionContext";
 
 interface DepartureItemProps {
-    departure: departureType;
-    run: runType;
+    departure: Departure;
+    run: Run;
 }
 
 function DepartureItem({ departure, run }: DepartureItemProps) {
@@ -20,9 +20,9 @@ function DepartureItem({ departure, run }: DepartureItemProps) {
     const platformNumber: string | undefined = departure.platform_number;
 
     const routeID: number = departure.route_id!;
-    const routeType: routeTypeType = selectedStop.route_type!;
+    const routeType: RouteType = selectedStop.route_type!;
 
-    const route: routeType | undefined = selectedStop.routes?.find(r => r.route_id === routeID);
+    const route: Route | undefined = selectedStop.routes?.find(r => r.route_id === routeID);
     const [routeNumber, routeName] = [route?.route_number, route?.route_name];
 
     // I like 24-hour time
