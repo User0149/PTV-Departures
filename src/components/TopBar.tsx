@@ -17,8 +17,8 @@ export default function TopBar() {
     return (
         <div>
             <div className="flex items-center relative h-8 bg-black text-white">
-                <div className="m-auto text-center absolute left-1/2 -translate-x-1/2">Current time: {curTime}</div>
-                <div className="ml-auto mr-4 h-full w-6 flex items-center justify-center hover:bg-[gray] cursor-pointer" onMouseEnter={() => setShowSettings(true)} onMouseLeave={() => setShowSettings(false)}>
+                <div className="m-auto text-center">Current time: {curTime}</div>
+                <div className="absolute right-4 h-full w-6 flex items-center justify-center hover:bg-[gray] cursor-pointer" onMouseEnter={() => setShowSettings(true)} onMouseLeave={() => setShowSettings(false)}>
                     <img src="img/settings.svg" alt="settings" width="16"/>
                 </div>
             </div>
