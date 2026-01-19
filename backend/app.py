@@ -24,7 +24,7 @@ def api_query(path):
     fullRequestPath = path + ("?" if queryString != "" else "") + queryString
 
     apiBaseURL = "https://timetableapi.ptv.vic.gov.au"
-    apiRequestPathWithDevId = f"/{fullRequestPath}{"&" if "?" in fullRequestPath else "?"}devid={PTV_DEVELOPER_ID}"
+    apiRequestPathWithDevId = f"/{fullRequestPath}{'&' if '?' in fullRequestPath else '?'}devid={PTV_DEVELOPER_ID}"
     
     # compute a signature to get the full request url to give to the PTV API
     apiFullRequestURL = f"{apiBaseURL}/{apiRequestPathWithDevId}&signature={hmac.new(PTV_DEVELOPER_KEY.encode("utf-8"), apiRequestPathWithDevId.encode("utf-8"), sha1).hexdigest()}"
@@ -42,5 +42,5 @@ def serve_frontend(path):
     if file_path.exists() and file_path.is_file():
         return send_from_directory(FRONTEND_DIR, path)
     
-    # allow frontend SPA to route
+    # serve index.html and allow frontend SPA to route
     return send_from_directory(FRONTEND_DIR, "index.html")
