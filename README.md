@@ -4,7 +4,6 @@ After cloning the repo:
 ```
 BACKEND_PORT=<backend port here>
 FRONTEND_PORT=<frontend port here>
-
 ```
 1. Create a `.env` file in the `backend/` directory with the following content:
 ```
