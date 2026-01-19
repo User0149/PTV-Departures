@@ -31,7 +31,7 @@ def api_query(path):
 
     response = requests.get(apiFullRequestURL)
 
-    return response.content, response.status_code
+    return response.json(), response.status_code
 
 # frontend routes
 @app.route("/", defaults={"path": "/"})
