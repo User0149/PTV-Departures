@@ -1,4 +1,5 @@
 #!/bin/bash
 
+source ../.env
 source venv/bin/activate
-flask run --port=5000
+flask run --port=$BACKEND_PORT
