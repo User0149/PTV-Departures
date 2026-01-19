@@ -27,7 +27,7 @@ def api_query(path):
     apiRequestPathWithDevId = f"/{fullRequestPath}{'&' if '?' in fullRequestPath else '?'}devid={PTV_DEVELOPER_ID}"
     
     # compute a signature to get the full request url to give to the PTV API
-    apiFullRequestURL = f"{apiBaseURL}/{apiRequestPathWithDevId}&signature={hmac.new(PTV_DEVELOPER_KEY.encode("utf-8"), apiRequestPathWithDevId.encode("utf-8"), sha1).hexdigest()}"
+    apiFullRequestURL = f"{apiBaseURL}/{apiRequestPathWithDevId}&signature={hmac.new(PTV_DEVELOPER_KEY.encode('utf-8'), apiRequestPathWithDevId.encode('utf-8'), sha1).hexdigest()}"
 
     response = requests.get(apiFullRequestURL)
 
