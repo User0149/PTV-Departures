@@ -5,7 +5,6 @@ import type { Departure, Run, StateSetter, Stop } from "../types/types";
 import { NearestStops, NextDepartures } from "../lib/apiCalls";
 
 import { LocationContext } from "./LocationContext";
-import { APIContext } from "./APIContext";
 import { DisruptionContext } from "./DisruptionContext";
 
 
@@ -51,7 +50,6 @@ export const DeparturesContext = createContext<IDeparturesContext>({
 
 export default function DeparturesContextProvider({ children }: DeparturesContextProviderProps) {
     const { pos, posInitialised } = useContext(LocationContext);
-    const { devID, devKey } = useContext(APIContext);
     const { setDisruptions } = useContext(DisruptionContext);
 
     const [stopsListFetched, setStopsListFetched] = useState<boolean>(false);
@@ -66,7 +64,7 @@ export default function DeparturesContextProvider({ children }: DeparturesContex
     const getStops = async () => {
         if (!posInitialised) return;
 
-        const { stops } = await NearestStops(pos[0], pos[1], devID, devKey);
+        const { stops } = await NearestStops(pos[0], pos[1]);
         if (stops === undefined) {
             setStopsListFetched(false);
             throw Error("Error: could not get nearest stops.");
@@ -83,7 +81,7 @@ export default function DeparturesContextProvider({ children }: DeparturesContex
     const getDeparturesAndDisruptions = async () => {
         if (!stopsListFetched) return;
 
-        const { departures, disruptions, runs } = await NextDepartures(selectedStop, devID, devKey);
+        const { departures, disruptions, runs } = await NextDepartures(selectedStop);
         
         if (departures === undefined) {
             setDeparturesListFetched(false);
@@ -131,7 +129,7 @@ export default function DeparturesContextProvider({ children }: DeparturesContex
 
         const updateStopsInterval = setInterval(getStops, 15000);
         return () => clearInterval(updateStopsInterval);
-    }, [pos, devID, devKey]);
+    }, [pos]);
     
     // get departures and disruptions for `selectedStop` every 15 seconds
     useEffect(() => {
@@ -139,7 +137,7 @@ export default function DeparturesContextProvider({ children }: DeparturesContex
 
         const updateDeparturesAndDisruptionsInterval = setInterval(getDeparturesAndDisruptions, 15000);
         return () => clearInterval(updateDeparturesAndDisruptionsInterval);
-    }, [selectedStop, devID, devKey]);
+    }, [selectedStop]);
 
     const initialDeparturesContext: IDeparturesContext = {
         stopsListFetched,

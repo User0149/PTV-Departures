@@ -4,7 +4,6 @@ import type { Stop } from "../types/types";
 
 import { DeparturesContext } from "../context/DeparturesContext";
 import { LocationContext } from "../context/LocationContext";
-import { APIContext } from "../context/APIContext";
 
 interface StopItemProps {
     stop: Stop;
@@ -55,14 +54,8 @@ function StopItem({ stop }: StopItemProps) {
 }
 
 function StopsListElem() {
-    const { devID, devKey } = useContext(APIContext);
     const { stopsList, stopsListFetched } = useContext(DeparturesContext);
 
-    if (devID === "" || devKey === "") {
-        return (
-            <p className="text-center text-2xl text-[red] p-4">Please configure your PTV developer ID and key in the settings.</p>
-        );
-    }
     if (!stopsListFetched) {
         return (
             <p className="text-center p-2">Loading…</p>
