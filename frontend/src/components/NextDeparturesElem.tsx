@@ -39,8 +39,11 @@ function DepartureItem({ departure, run }: DepartureItemProps) {
 
     return (
         <div className={`flex w-full min-h-30 border-b border-[gray] hover:bg-[#d5d5d5] cursor-pointer ${isSelected ? "bg-[#d5d5d5]" : ""}`} onClick={() => {
-            const newSelectedRun = run;
-            newSelectedRun.scheduled_departure_utc = departure.scheduled_departure_utc;
+            const newSelectedRun = {
+                ...run,
+                scheduled_departure_utc: departure.scheduled_departure_utc
+            }
+            
             setSelectedRun(newSelectedRun);
         }}>
             <div className="flex-1 p-2 space-y-3">

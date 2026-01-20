@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 
 import type { Departure, Run, StateSetter, Stop } from "../types/types";
 
@@ -59,7 +59,9 @@ export default function DeparturesContextProvider({ children }: DeparturesContex
     const [departuresListFetched, setDeparturesListFetched] = useState<boolean>(false);
     const [departuresList, setDeparturesList] = useState<Departure[]>([]);
     const [runs, setRuns] = useState<Record<string, Run>>({});
+
     const [selectedRun, setSelectedRun] = useState<Run>({});
+    const selectedRunRef = useRef<Run>(selectedRun);
 
     const getStops = async () => {
         if (!posInitialised) return;
@@ -101,19 +103,27 @@ export default function DeparturesContextProvider({ children }: DeparturesContex
         setRuns(runs);
         setDisruptions(disruptions);
 
+        const curSelectedRun = selectedRunRef.current;
+
         if (departures.length >= 1){
             try {
                 // if selectedRun isn't chosen or isn't available for this stop, default to next run for this stop
-                if (selectedRun?.run_ref === undefined || !(selectedRun.run_ref in runs)) {
-                    const newSelectedRun: Run = runs[departures[0].run_ref!];
-                    newSelectedRun.scheduled_departure_utc = departures[0].scheduled_departure_utc;
+                if (curSelectedRun?.run_ref === undefined || !(curSelectedRun.run_ref in runs)) {
+                    const newSelectedRun: Run = {
+                        ...runs[departures[0].run_ref!],
+                        scheduled_departure_utc: departures[0].scheduled_departure_utc
+                    };
+
                     setSelectedRun(newSelectedRun);
                 }
                 // add `scheduled_departure_utc` property to this run because PTV API doesn't provide it
                 else {
                     // update properties of `selectedRun` (e.g., `vehicle_position`)
-                    const newSelectedRun: Run = runs[selectedRun.run_ref!];
-                    newSelectedRun.scheduled_departure_utc = selectedRun.scheduled_departure_utc!;
+                    const newSelectedRun: Run = {
+                        ...runs[curSelectedRun.run_ref!],
+                        scheduled_departure_utc: curSelectedRun.scheduled_departure_utc
+                    };
+                    
                     setSelectedRun(newSelectedRun);
                 }
             }
@@ -123,21 +133,27 @@ export default function DeparturesContextProvider({ children }: DeparturesContex
         }
     };
 
+    useEffect(() => {
+        selectedRunRef.current = selectedRun;
+    }, [selectedRun]);
+
     // get nearest stops every 15 seconds
     useEffect(() => {
         getStops();
 
         const updateStopsInterval = setInterval(getStops, 15000);
+
         return () => clearInterval(updateStopsInterval);
-    }, [pos]);
+    }, [pos, posInitialised]);
     
     // get departures and disruptions for `selectedStop` every 15 seconds
     useEffect(() => {
         getDeparturesAndDisruptions();
 
         const updateDeparturesAndDisruptionsInterval = setInterval(getDeparturesAndDisruptions, 15000);
+
         return () => clearInterval(updateDeparturesAndDisruptionsInterval);
-    }, [selectedStop]);
+    }, [selectedStop, stopsListFetched]);
 
     const initialDeparturesContext: IDeparturesContext = {
         stopsListFetched,
