@@ -11,7 +11,8 @@ BACKEND_DIR = Path(__file__).resolve().parent
 FRONTEND_DIR = BACKEND_DIR.parent / "frontend" / "dist"
 
 # load secrets from .env
-load_dotenv(BACKEND_DIR / ".env")
+load_dotenv()
+
 PTV_DEVELOPER_ID = os.environ.get("PTV_DEVELOPER_ID")
 PTV_DEVELOPER_KEY = os.environ.get("PTV_DEVELOPER_KEY")
 

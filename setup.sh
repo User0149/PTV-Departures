@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -Eeuo pipefail
+
 pnpm install
 
 cd frontend
